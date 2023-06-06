@@ -1,19 +1,17 @@
 package fuzzer
 
 import (
-	"fmt"
+	"log"
 	"strings"
 	"sync"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
 )
 
-func (f *Fuzzer) cyrillic(wg *sync.WaitGroup, cych chan string) {
-	fmt.Println("Inside cyrillic----------------------------------------------")
-
+func (f *Fuzzer) cyrillic(cych chan string, wg *sync.WaitGroup) {
+	log.Println("Inside cyrillic----------------------------------------------")
 	defer wg.Done()
-	defer close(cych)
-
+	isActiveWg := &sync.WaitGroup{}
 	cdomain := f.Domain
 	actualDomain := f.Domain + "." + f.TLD
 	// Mapping of latin to cyrillic characters
@@ -30,12 +28,11 @@ func (f *Fuzzer) cyrillic(wg *sync.WaitGroup, cych chan string) {
 
 	for i, c := range cdomain {
 		if c != rune(actualDomain[i]) {
-			validDomain, err := urlparser.IsActiveDomain(cdomain, f.TLD)
-			if err == nil && validDomain != "" {
-				cych <- validDomain
-			}
+			isActiveWg.Add(1)
+			go urlparser.IsActiveDomain(cdomain, f.TLD, cych, isActiveWg)
 
 			break
 		}
 	}
+	isActiveWg.Wait()
 }

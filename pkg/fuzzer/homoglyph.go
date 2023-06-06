@@ -1,19 +1,17 @@
 package fuzzer
 
 import (
-	"fmt"
+	"log"
 	"strings"
 	"sync"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
 )
 
-func (f *Fuzzer) homoglyph(wg *sync.WaitGroup, hoch chan string) {
-	fmt.Println("Inside homoglyph----------------------------------------------")
-
+func (f *Fuzzer) homoglyph(hoch chan string, wg *sync.WaitGroup) {
+	log.Println("Inside homoglyph----------------------------------------------")
 	defer wg.Done()
-	defer close(hoch)
-
+	isActiveWg := &sync.WaitGroup{}
 	type void struct{}
 	var member void
 
@@ -41,12 +39,10 @@ func (f *Fuzzer) homoglyph(wg *sync.WaitGroup, hoch chan string) {
 	}
 
 	for k := range resultVals {
-		validDomain, err := urlparser.IsActiveDomain(resultVals[k], f.TLD)
-		if err == nil && validDomain != "" {
-			hoch <- validDomain
-		}
-
+		isActiveWg.Add(1)
+		go urlparser.IsActiveDomain(resultVals[k], f.TLD, hoch, isActiveWg)
 	}
+	isActiveWg.Wait()
 }
 
 func mix(domain string, glyph map[byte][]string) []string {

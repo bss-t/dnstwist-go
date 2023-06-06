@@ -1,23 +1,22 @@
 package fuzzer
 
 import (
-	"fmt"
+	"log"
 	"sync"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
 )
 
-func (f *Fuzzer) hyphenation(wg *sync.WaitGroup, hych chan string) {
-	fmt.Println("Inside hyphenation----------------------------------------------")
+var hyphenationwg sync.WaitGroup
 
-	defer wg.Done()
-	defer close(hych)
-
-	for i := 1; i < len(f.Domain); i++ {
-		validDomain, err := urlparser.IsActiveDomain(f.Domain[:i]+"-"+f.Domain[i:], f.TLD)
-		if err == nil && validDomain != "" {
-			hych <- validDomain
-		}
-
+func (f *Fuzzer) hyphenation(hych chan string, Domain string, hyphenationwg *sync.WaitGroup) {
+	log.Println("Inside hyphenation----------------------------------------------")
+	defer hyphenationwg.Done()
+	isActiveWg := &sync.WaitGroup{}
+	for i := 1; i < len(Domain); i++ {
+		newDomain := Domain[:i] + "-" + Domain[i:]
+		isActiveWg.Add(1)
+		go urlparser.IsActiveDomain(newDomain, "http", hych, isActiveWg)
 	}
+	isActiveWg.Wait()
 }

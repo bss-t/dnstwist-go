@@ -1,10 +1,11 @@
 package urlparser
 
 import (
-	"fmt"
+	"log"
 	"net"
 	"net/url"
 	"regexp"
+	"sync"
 
 	"golang.org/x/net/idna"
 )
@@ -47,23 +48,25 @@ func ValidateDomain(domain string) bool {
 		// decode the domain
 		_, err := idna.ToUnicode(domain)
 		if err != nil {
-			fmt.Println("Error encoding domain:", err)
+			log.Println("Error encoding domain:", err)
 			return false
 		}
 		return true
 	} else {
-		fmt.Println("Match not found.")
+		log.Println("Match not found.")
 		return false
 	}
 }
 
-func IsActiveDomain(domain string, tld string) (string, error) {
-	domain = domain + "." + tld
+func IsActiveDomain(domain string, tld string, activeDomainChannel chan string, wg *sync.WaitGroup) (string, error) {
+	defer wg.Done()
+	if domain != "" {
+		domain = domain + "." + tld
+	}
 	// Check if the domain name exists
 	_, err := net.LookupHost(domain)
 	if err == nil {
-		return domain, nil
-
+		activeDomainChannel <- domain
 	}
 	return "", nil
 }

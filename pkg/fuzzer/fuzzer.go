@@ -1,15 +1,12 @@
 package fuzzer
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"sync"
 
 	tld "github.com/jpillora/go-tld"
 )
-
-var wg sync.WaitGroup
 
 type Fuzzer struct {
 	Domain    string
@@ -27,7 +24,8 @@ type Keyboards struct {
 func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string) []string {
 
 	validDomains := make([]string, 0)
-
+	done := make(chan struct{})
+	var fuzzWg sync.WaitGroup
 	qwerty := Keyboards{
 		Layout: "qwerty",
 		Keys: map[rune]string{
@@ -88,31 +86,12 @@ func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string)
 	}
 
 	u, _ := tld.Parse(host)
-	fmt.Printf("%50s = [ %s ] [ %s ] [ %s ] [ %s ] [ %s ] [ %t ]\n",
+	log.Printf("%50s = [ %s ] [ %s ] [ %s ] [ %s ] [ %s ] [ %t ]\n",
 		u, u.Subdomain, u.Domain, u.TLD, u.Port, u.Path, u.ICANN)
 
 	f.Domain, f.Subdomain, f.TLD = u.Domain, u.Subdomain, u.TLD
 
-	wg.Add(1)
-	hoch := make(chan string, 10000)
-	go f.homoglyph(&wg, hoch)
-
-	wg.Add(1)
-	bsch := make(chan string, 10000)
-	go f.bitsquatting(&wg, bsch)
-
-	wg.Add(1)
-	cych := make(chan string, 10000)
-	go f.cyrillic(&wg, cych)
-
-	wg.Add(1)
-	hych := make(chan string, 10000)
-	go f.hyphenation(&wg, hych)
-
-	wg.Add(1)
-	inch := make(chan string, 10000)
-	go f.insertion(&wg, inch)
-
+	activeDomainChannel := make(chan string, 10000)
 	file, err := os.Create("data.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -123,86 +102,57 @@ func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string)
 	}
 	defer file.Close()
 
-	for {
-		select {
-		case ho := <-hoch:
-			if ho != "" {
-				fmt.Println("Consuming hoch----------------------------------------------")
-				validDomains = append(validDomains, ho)
+	fuzzWg.Add(1)
+	go f.bitsquatting(activeDomainChannel, &fuzzWg)
 
-				if _, err = file1.WriteString(ho + "\n"); err != nil {
+	fuzzWg.Add(1)
+	go f.cyrillic(activeDomainChannel, &fuzzWg)
+
+	fuzzWg.Add(1)
+	go f.homoglyph(activeDomainChannel, &fuzzWg)
+
+	fuzzWg.Add(1)
+	go f.hyphenation(activeDomainChannel, f.Domain, &fuzzWg)
+
+	fuzzWg.Add(1)
+	go f.insertion(activeDomainChannel, &fuzzWg)
+
+	fuzzWg.Add(1)
+	go f.omission(activeDomainChannel, &fuzzWg)
+
+	fuzzWg.Add(1)
+	go f.repetition(activeDomainChannel, &fuzzWg)
+
+	go func() {
+		defer func() {
+			close(done) // Close the done channel to signal completion
+		}()
+		for {
+			select {
+			case validDomain, ok := <-activeDomainChannel:
+				if !ok {
+					return
+				}
+				if _, err = file1.WriteString(validDomain + "\n"); err != nil {
 					panic(err)
 				}
+				validDomains = append(validDomains, validDomain)
+			case <-done:
+				return
 			}
-
-		case bs := <-bsch:
-			if bs != "" {
-				fmt.Println("Consuming bsch----------------------------------------------")
-				validDomains = append(validDomains, bs)
-
-				if _, err = file1.WriteString(bs + "\n"); err != nil {
-					panic(err)
-				}
-			}
-
-		case cy := <-cych:
-			if cy != "" {
-				fmt.Println("Consuming cych----------------------------------------------")
-				validDomains = append(validDomains, cy)
-
-				if _, err = file1.WriteString(cy + "\n"); err != nil {
-					panic(err)
-				}
-			}
-
-		case hy := <-hych:
-			if hy != "" {
-				fmt.Println("Consuming hych----------------------------------------------")
-				validDomains = append(validDomains, hy)
-
-				if _, err = file1.WriteString(hy + "\n"); err != nil {
-					panic(err)
-				}
-			}
-		case in := <-inch:
-			if in != "" {
-				fmt.Println("Consuming inch----------------------------------------------")
-				validDomains = append(validDomains, in)
-
-				if _, err = file1.WriteString(in + "\n"); err != nil {
-					panic(err)
-				}
-			}
-
 		}
-	}
-	// for domain := range hoch {
-	// 	fmt.Println("Consuming hoch----------------------------------------------")
-	// 	validDomains = append(validDomains, domain)
-	// }
-	// for domain := range bsch {
-	// 	fmt.Println("Consuming bsch----------------------------------------------")
+	}()
 
-	// 	validDomains = append(validDomains, domain)
-	// }
+	fuzzWg.Wait()
+	close(activeDomainChannel)
+	<-done
+	// go f.homoglyph(&wg, activeDomainChannel)
 
-	// for domain := range cych {
-	// 	fmt.Println("Consuming cych----------------------------------------------")
+	// go f.bitsquatting(&wg, activeDomainChannel)
 
-	// 	validDomains = append(validDomains, domain)
-	// }
+	// go f.cyrillic(&wg, activeDomainChannel)
 
-	// for domain := range hych {
-	// 	fmt.Println("Consuming hych----------------------------------------------")
+	// go f.insertion(activeDomainChannel)
 
-	// 	validDomains = append(validDomains, domain)
-	// }
-
-	// for domain := range inch {
-	// 	fmt.Println("Consuming inch----------------------------------------------")
-	// 	validDomains = append(validDomains, domain)
-	// }
-
-	wg.Wait()
 	return validDomains
 }
