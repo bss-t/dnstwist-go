@@ -146,6 +146,7 @@ func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string)
 				}
 				validDomains = append(validDomains, validDomain)
 			case <-done:
+				log.Debug(validDomains)
 				return
 			}
 		}

@@ -1,4 +1,4 @@
-[dnstwist]()
+[Dnstwist]()
 ===============================
 
 DNS fuzzing is an automated workflow for discovering potentially malicious domains targeting your organisation. This tool works by generating a large list of permutations based on a domain name you provide and then checking if any of those permutations are in use.
@@ -11,11 +11,19 @@ Installation
 
 
 **Git**
+
 You can checkout the version of code.
 
 ```
 $ git clone https://github.com/balasiddhartha-t/dnstwist-go.git
 $ cd dnstwist-go
-$ go build -o dnstwist-go .\cmd\main.go
+$ go build -o dnstwist-go ./cmd/main.go
 ```
 ***Note:*** For windows users please use ```go build -o dnstwist-go.exe .\cmd\main.go```
+
+**Docker**
+
+You can directly run it using the docker image
+```
+ docker run -it bstt/dnstwist-go dnstwist-go --domain https://www.google.com -d
+```
