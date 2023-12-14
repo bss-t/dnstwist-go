@@ -1,14 +1,15 @@
 package fuzzer
 
 import (
-	"log"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
 )
 
 func (f *Fuzzer) repetition(rech chan string, wg *sync.WaitGroup) {
-	log.Println("Inside repetition----------------------------------------------")
+	log.Debug("-------------------------------------Inside repetition----------------------------------------------")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	repetitions := make(map[string]bool)

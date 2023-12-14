@@ -1,15 +1,15 @@
 package fuzzer
 
 import (
-	"log"
 	"strings"
 	"sync"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
+	log "github.com/sirupsen/logrus"
 )
 
 func (f *Fuzzer) cyrillic(cych chan string, wg *sync.WaitGroup) {
-	log.Println("Inside cyrillic----------------------------------------------")
+	log.Debug("Inside cyrillic----------------------------------------------")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	cdomain := f.Domain

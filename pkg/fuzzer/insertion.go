@@ -1,14 +1,15 @@
 package fuzzer
 
 import (
-	"log"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
 )
 
 func (f *Fuzzer) insertion(inch chan string, wg *sync.WaitGroup) {
-	log.Println("Running insertion----------------------------------------------")
+	log.Debug("Running insertion----------------------------------------------")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	for i := 1; i < len(f.Domain)-1; i++ {

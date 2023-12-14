@@ -1,16 +1,16 @@
 package fuzzer
 
 import (
-	"log"
 	"sync"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
+	log "github.com/sirupsen/logrus"
 )
 
 var hyphenationwg sync.WaitGroup
 
 func (f *Fuzzer) hyphenation(hych chan string, Domain string, hyphenationwg *sync.WaitGroup) {
-	log.Println("Inside hyphenation----------------------------------------------")
+	log.Debug("Inside hyphenation----------------------------------------------")
 	defer hyphenationwg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	for i := 1; i < len(Domain); i++ {

@@ -1,15 +1,16 @@
 package fuzzer
 
 import (
-	"log"
 	"strings"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
 )
 
 func (f *Fuzzer) homoglyph(hoch chan string, wg *sync.WaitGroup) {
-	log.Println("Inside homoglyph----------------------------------------------")
+	log.Debug("Inside homoglyph")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	type void struct{}
