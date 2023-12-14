@@ -10,7 +10,7 @@ import (
 func (f *Fuzzer) bitsquatting(bsch chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	log.Debug("Inside BitSquatting----------------------------------------------")
+	log.Debug("Running BitSquatting")
 	bits := []byte(f.Domain)
 	isActiveWg := &sync.WaitGroup{}
 	for i := 0; i < len(bits)*8; i++ {

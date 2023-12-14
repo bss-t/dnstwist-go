@@ -9,7 +9,7 @@ import (
 )
 
 func (f *Fuzzer) insertion(inch chan string, wg *sync.WaitGroup) {
-	log.Debug("Running insertion----------------------------------------------")
+	log.Debug("Running insertion")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	for i := 1; i < len(f.Domain)-1; i++ {

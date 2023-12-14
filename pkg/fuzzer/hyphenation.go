@@ -10,7 +10,7 @@ import (
 var hyphenationwg sync.WaitGroup
 
 func (f *Fuzzer) hyphenation(hych chan string, Domain string, hyphenationwg *sync.WaitGroup) {
-	log.Debug("Inside hyphenation----------------------------------------------")
+	log.Debug("Running hyphenation")
 	defer hyphenationwg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	for i := 1; i < len(Domain); i++ {

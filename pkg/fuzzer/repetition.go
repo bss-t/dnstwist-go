@@ -9,7 +9,7 @@ import (
 )
 
 func (f *Fuzzer) repetition(rech chan string, wg *sync.WaitGroup) {
-	log.Debug("-------------------------------------Inside repetition----------------------------------------------")
+	log.Debug("Running repetition")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	repetitions := make(map[string]bool)

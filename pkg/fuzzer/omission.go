@@ -9,7 +9,7 @@ import (
 )
 
 func (f *Fuzzer) omission(omch chan string, wg *sync.WaitGroup) {
-	log.Debug("Inside omission")
+	log.Debug("Running omission")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 
