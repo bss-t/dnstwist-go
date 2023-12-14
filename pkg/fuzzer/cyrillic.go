@@ -9,7 +9,7 @@ import (
 )
 
 func (f *Fuzzer) cyrillic(cych chan string, wg *sync.WaitGroup) {
-	log.Debug("Inside cyrillic----------------------------------------------")
+	log.Debug("Running cyrillic")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	cdomain := f.Domain

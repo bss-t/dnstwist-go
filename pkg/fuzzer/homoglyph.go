@@ -10,7 +10,7 @@ import (
 )
 
 func (f *Fuzzer) homoglyph(hoch chan string, wg *sync.WaitGroup) {
-	log.Debug("Inside homoglyph")
+	log.Debug("Running homoglyph")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 	type void struct{}
