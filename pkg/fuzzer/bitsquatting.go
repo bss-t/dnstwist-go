@@ -1,16 +1,16 @@
 package fuzzer
 
 import (
-	"log"
 	"sync"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
+	log "github.com/sirupsen/logrus"
 )
 
 func (f *Fuzzer) bitsquatting(bsch chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	log.Println("Inside BitSquatting----------------------------------------------")
+	log.Debug("Inside BitSquatting----------------------------------------------")
 	bits := []byte(f.Domain)
 	isActiveWg := &sync.WaitGroup{}
 	for i := 0; i < len(bits)*8; i++ {

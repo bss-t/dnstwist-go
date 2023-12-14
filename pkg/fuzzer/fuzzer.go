@@ -1,11 +1,11 @@
 package fuzzer
 
 import (
-	"log"
 	"os"
 	"sync"
 
 	tld "github.com/jpillora/go-tld"
+	log "github.com/sirupsen/logrus"
 )
 
 type Fuzzer struct {
@@ -21,7 +21,7 @@ type Keyboards struct {
 	Keys   map[rune]string
 }
 
-func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string) []string {
+func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string) {
 
 	validDomains := make([]string, 0)
 	done := make(chan struct{})
@@ -86,8 +86,7 @@ func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string)
 	}
 
 	u, _ := tld.Parse(host)
-	log.Printf("%50s = [ %s ] [ %s ] [ %s ] [ %s ] [ %s ] [ %t ]\n",
-		u, u.Subdomain, u.Domain, u.TLD, u.Port, u.Path, u.ICANN)
+	log.Info(u, " ", u.Subdomain, " ", u.Domain, " ", u.TLD, " ", u.Port, " ", u.Path, " ", u.ICANN)
 
 	f.Domain, f.Subdomain, f.TLD = u.Domain, u.Subdomain, u.TLD
 
@@ -123,6 +122,15 @@ func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string)
 	fuzzWg.Add(1)
 	go f.repetition(activeDomainChannel, &fuzzWg)
 
+	fuzzWg.Add(1)
+	go f.replacement(activeDomainChannel, &fuzzWg)
+
+	fuzzWg.Add(1)
+	go f.subdomain(activeDomainChannel, &fuzzWg)
+
+	fuzzWg.Add(1)
+	go f.addition(activeDomainChannel, &fuzzWg)
+
 	go func() {
 		defer func() {
 			close(done) // Close the done channel to signal completion
@@ -146,13 +154,6 @@ func (f *Fuzzer) Fuzz(host string, dictionary []string, tld_dictionary []string)
 	fuzzWg.Wait()
 	close(activeDomainChannel)
 	<-done
-	// go f.homoglyph(&wg, activeDomainChannel)
 
-	// go f.bitsquatting(&wg, activeDomainChannel)
-
-	// go f.cyrillic(&wg, activeDomainChannel)
-
-	// go f.insertion(activeDomainChannel)
-
-	return validDomains
+	log.Debug(validDomains)
 }

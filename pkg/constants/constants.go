@@ -1,7 +1,6 @@
 package constants
 
 const (
-	AppName    = "My App"
+	AppName    = "DNS TWIST WITH Golang"
 	AppVersion = "1.0.0"
-	MaxRetries = 3
 )

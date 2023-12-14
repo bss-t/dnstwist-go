@@ -1,14 +1,15 @@
 package fuzzer
 
 import (
-	"log"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
 )
 
 func (f *Fuzzer) omission(omch chan string, wg *sync.WaitGroup) {
-	log.Println("Inside omission----------------------------------------------")
+	log.Debug("Inside omission")
 	defer wg.Done()
 	isActiveWg := &sync.WaitGroup{}
 
