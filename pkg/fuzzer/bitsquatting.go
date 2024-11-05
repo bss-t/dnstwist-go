@@ -3,7 +3,7 @@ package fuzzer
 import (
 	"sync"
 
-	"github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
+	"github.com/bss-t/dnstwist-go/pkg/urlparser"
 	log "github.com/sirupsen/logrus"
 )
 

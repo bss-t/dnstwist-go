@@ -9,8 +9,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	fuzz "github.com/balasiddhartha-t/dnstwist-go/pkg/fuzzer"
-	urlparser "github.com/balasiddhartha-t/dnstwist-go/pkg/urlparser"
+	fuzz "github.com/bss-t/dnstwist-go/pkg/fuzzer"
+	urlparser "github.com/bss-t/dnstwist-go/pkg/urlparser"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -70,7 +70,7 @@ func main() {
 		url = url.Parse(domain)
 		f.Fuzz(url.Scheme+"://"+url.Host, dictionary, tld)
 		elapsed := time.Since(start)
-		log.Info("Time taken by fuzzer is ---------------- ", elapsed)
+		log.Info("Time taken by fuzzer is ", elapsed)
 	} else {
 		log.Error("Please pass domain as a flag")
 	}
